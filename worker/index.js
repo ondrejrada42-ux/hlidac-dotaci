@@ -37,7 +37,7 @@ export default {
         if (request.headers.get('X-Webhook-Secret') !== env.SUPABASE_WEBHOOK_SECRET) {
           return new Response('Unauthorized', { status: 401 });
         }
-        const result = await runDailyJob(event, env);
+        const result = await runDailyJob({ scheduledTime: Date.now() }, env);
         return new Response(JSON.stringify(result), { headers: { 'Content-Type': 'application/json' } });
       }
     } catch (err) {
