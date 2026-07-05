@@ -9,7 +9,7 @@ export function OnboardingPage({ user }) {
   const wrap = el('<div></div>');
   wrap.appendChild(Navbar(user));
 
-  const answers = { obor: user.obor || null, kraj: user.kraj || null, velikost_firmy: user.velikost_firmy || null };
+  const answers = { obory: user.obory && user.obory.length ? [...user.obory] : [], kraj: user.kraj || null, velikost_firmy: user.velikost_firmy || null };
   let step = 1;
 
   const main = el(`
@@ -46,19 +46,26 @@ export function OnboardingPage({ user }) {
 
     if (step === 1) {
       content.innerHTML = `
-        <h2 class="font-bold text-lg text-primary-900 mb-1">Jaký je váš obor podnikání?</h2>
-        <p class="text-sm text-primary-500 mb-4">Podle oboru vybíráme nejrelevantnější výzvy (váha 50 % skóre shody).</p>
+        <h2 class="font-bold text-lg text-primary-900 mb-1">V jakých oborech podnikáte?</h2>
+        <p class="text-sm text-primary-500 mb-4">Můžete vybrat víc oborů najednou. Podle oboru vybíráme nejrelevantnější výzvy (váha 50 % skóre shody).</p>
         <div class="grid grid-cols-2 gap-2" id="obor-grid">
           ${CZ_NACE.map(
             (o) => `
-            <button type="button" data-value="${o}" class="text-left text-sm px-3 py-2.5 rounded-lg border ${answers.obor === o ? 'border-accent-500 bg-accent-50 text-accent-700 font-semibold' : 'border-gray-200 hover:border-gray-300'}">${o}</button>
+            <button type="button" data-value="${o}" class="text-left text-sm px-3 py-2.5 rounded-lg border ${answers.obory.includes(o) ? 'border-accent-500 bg-accent-50 text-accent-700 font-semibold' : 'border-gray-200 hover:border-gray-300'}">
+              ${answers.obory.includes(o) ? '✓ ' : ''}${o}
+            </button>
           `
           ).join('')}
         </div>
       `;
       content.querySelectorAll('#obor-grid button').forEach((btn) => {
         btn.addEventListener('click', () => {
-          answers.obor = btn.dataset.value;
+          const value = btn.dataset.value;
+          if (answers.obory.includes(value)) {
+            answers.obory = answers.obory.filter((o) => o !== value);
+          } else {
+            answers.obory.push(value);
+          }
           renderStep();
         });
       });
@@ -113,7 +120,7 @@ export function OnboardingPage({ user }) {
   });
 
   btnNext.addEventListener('click', async () => {
-    if (step === 1 && !answers.obor) return toast('Vyberte prosím obor podnikání.', 'error');
+    if (step === 1 && answers.obory.length === 0) return toast('Vyberte prosím alespoň jeden obor podnikání.', 'error');
     if (step === 2 && !answers.kraj) return toast('Vyberte prosím kraj.', 'error');
     if (step === 3 && !answers.velikost_firmy) return toast('Vyberte prosím velikost firmy.', 'error');
 

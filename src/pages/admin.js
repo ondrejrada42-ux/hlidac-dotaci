@@ -225,7 +225,7 @@ export async function AdminPage({ user } = {}) {
                 <td class="px-4 py-3 font-medium text-primary-800">${u.email}</td>
                 <td class="px-4 py-3">${u.role === 'admin' ? 'Admin' : 'Uživatel'}</td>
                 <td class="px-4 py-3"><span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary-50 text-primary-700">${u.plan}</span></td>
-                <td class="px-4 py-3">${u.obor ?? '—'}</td>
+                <td class="px-4 py-3">${u.obory?.length ? u.obory.join(', ') : '—'}</td>
                 <td class="px-4 py-3">${u.kraj ?? '—'}</td>
                 <td class="px-4 py-3">${formatDate(u.created_at)}</td>
               </tr>

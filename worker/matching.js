@@ -1,7 +1,7 @@
 export function computeScore(user, call) {
-  if (!user?.obor || !user?.kraj || !user?.velikost_firmy) return 0;
+  if (!user?.obory?.length || !user?.kraj || !user?.velikost_firmy) return 0;
 
-  const oborMatch = call.obory.includes('Všechny obory') || call.obory.includes(user.obor) ? 1 : 0;
+  const oborMatch = call.obory.includes('Všechny obory') || user.obory.some((o) => call.obory.includes(o)) ? 1 : 0;
   const krajMatch = call.kraje.includes('Celá ČR') || call.kraje.includes(user.kraj) ? 1 : 0;
   const velikostMatch = call.velikosti.includes(user.velikost_firmy) ? 1 : 0;
 

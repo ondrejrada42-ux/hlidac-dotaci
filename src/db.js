@@ -89,7 +89,7 @@ export const db = {
       id: uid('u'),
       role: 'user',
       plan: 'FREE',
-      obor: null,
+      obory: [],
       kraj: null,
       velikost_firmy: null,
       onboarding_complete: false,

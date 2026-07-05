@@ -12,7 +12,7 @@ create table if not exists public.profiles (
   email text not null,
   role text not null default 'user' check (role in ('user', 'admin')),
   plan text not null default 'FREE' check (plan in ('FREE', 'PRO', 'FIRMA')),
-  obor text,
+  obory text[] not null default '{}',
   kraj text,
   velikost_firmy text,
   onboarding_complete boolean not null default false,
@@ -183,6 +183,21 @@ insert into public.calls (nazev, poskytovatel, obory, kraje, velikosti, min_cast
 ('OP TAK – Robotizace a automatizace výroby', 'EU', '{"Výroba a průmysl"}', '{"Celá ČR"}', '{"do 10 zaměstnanců","do 50 zaměstnanců","50+ zaměstnanců"}', 500000, 10000000, '2026-09-10', 'Podpora nasazení robotických a automatizačních technologií do výrobních linek za účelem zvýšení produktivity.', 'https://optak.cz/robotizace', 'aktivni', '2026-04-20'),
 ('MPSV – Podpora zaměstnávání OZP', 'MPSV', '{"Obchod a služby","Výroba a průmysl","Zdravotnictví a sociální služby","Ostatní"}', '{"Celá ČR"}', '{"OSVČ","do 10 zaměstnanců","do 50 zaměstnanců","50+ zaměstnanců"}', 20000, 500000, '2026-07-14', 'Příspěvek zaměstnavatelům na vytvoření a provoz pracovních míst pro osoby se zdravotním postižením.', 'https://mpsv.cz/podpora-ozp', 'aktivni', '2026-06-05')
 on conflict do nothing;
+
+-- ---------------------------------------------------------------------
+-- Migrace: profiles.obor (jeden obor) -> profiles.obory (víc oborů)
+-- Bezpečné spustit i opakovaně - pokud obory už existuje, nic se nestane.
+-- ---------------------------------------------------------------------
+
+do $$
+begin
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name = 'obor')
+     and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name = 'obory') then
+    alter table public.profiles add column obory text[] not null default '{}';
+    update public.profiles set obory = case when obor is null then '{}'::text[] else array[obor] end;
+    alter table public.profiles drop column obor;
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------
 -- Automatický import výzev (denní scraper DotaceEU.cz) – podpůrné objekty

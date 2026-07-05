@@ -21,7 +21,7 @@ export async function DashboardPage({ user }) {
         <div>
           <h1 class="text-2xl font-bold text-primary-900">Vaše relevantní výzvy</h1>
           <p class="text-primary-500 text-sm mt-1">
-            Obor <strong>${user.obor}</strong> · Kraj <strong>${user.kraj}</strong> · ${user.velikost_firmy}
+            Obory <strong>${user.obory.join(', ')}</strong> · Kraj <strong>${user.kraj}</strong> · ${user.velikost_firmy}
             &nbsp;·&nbsp;<a href="#/onboarding" class="text-accent-600 font-semibold">upravit profil</a>
           </p>
         </div>
