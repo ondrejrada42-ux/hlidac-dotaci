@@ -16,28 +16,38 @@ export async function handleOnNewCall(request, env, ctx) {
 
   const users = await getActiveUsers(env);
   const instantUsers = users.filter((u) => u.notification_prefs?.frequency === 'okamzite');
+  const scored = instantUsers.map((user) => ({
+    email: user.email,
+    score: computeScore(user, call),
+    providerEnabled: isProviderEnabled(user, call),
+  }));
 
   const dashboardUrl = `${new URL(request.url).origin}/#/dashboard`;
 
-  const sends = instantUsers
+  const toNotify = instantUsers
     .map((user) => ({ user, score: computeScore(user, call) }))
-    .filter(({ user, score }) => score >= 30 && isProviderEnabled(user, call))
-    .map(({ user, score }) =>
-      sendEmail(env, {
-        to: user.email,
-        subject: `Nová výzva pro vás: ${call.nazev}`,
-        html: digestEmailHtml({
-          heading: 'Nová dotační výzva odpovídá vašemu profilu',
-          intro: `Právě jsme přidali výzvu, která se ${score} % shoduje s vaším profilem.`,
-          matches: [{ call, score }],
-          dashboardUrl,
-        }),
-      }).catch(() => null)
-    );
+    .filter(({ user, score }) => score >= 30 && isProviderEnabled(user, call));
 
-  ctx.waitUntil(Promise.all(sends));
+  const sends = toNotify.map(({ user, score }) =>
+    sendEmail(env, {
+      to: user.email,
+      subject: `Nová výzva pro vás: ${call.nazev}`,
+      html: digestEmailHtml({
+        heading: 'Nová dotační výzva odpovídá vašemu profilu',
+        intro: `Právě jsme přidali výzvu, která se ${score} % shoduje s vaším profilem.`,
+        matches: [{ call, score }],
+        dashboardUrl,
+      }),
+    }).catch((err) => ({ emailError: err.message }))
+  );
 
-  return new Response(JSON.stringify({ notified: sends.length }), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const sendResults = await Promise.all(sends);
+
+  return new Response(
+    JSON.stringify({
+      notified: toNotify.length,
+      debug: { totalUsers: users.length, instantUsers: instantUsers.length, scored, sendResults },
+    }),
+    { headers: { 'Content-Type': 'application/json' } }
+  );
 }
