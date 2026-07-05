@@ -64,7 +64,7 @@ export function LandingPage({ user } = {}) {
           </p>
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="#/registrace" class="bg-primary-600 text-white font-semibold rounded-lg px-8 py-3.5 hover:bg-primary-700 shadow-lg shadow-primary-600/20">Zaregistrovat se zdarma</a>
-            <a href="#faq" class="border border-gray-300 text-primary-700 font-semibold rounded-lg px-8 py-3.5 hover:bg-gray-50">Jak to funguje</a>
+            <button id="btn-scroll-faq" class="border border-gray-300 text-primary-700 font-semibold rounded-lg px-8 py-3.5 hover:bg-gray-50">Jak to funguje</button>
           </div>
         </div>
       </section>
@@ -122,6 +122,15 @@ export function LandingPage({ user } = {}) {
     });
     faqList.appendChild(item);
   });
+
+  main.querySelector('#btn-scroll-faq').addEventListener('click', () => {
+    main.querySelector('#faq').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  const hashQuery = window.location.hash.split('?')[1];
+  if (hashQuery && new URLSearchParams(hashQuery).get('scrollTo') === 'faq') {
+    setTimeout(() => main.querySelector('#faq').scrollIntoView({ behavior: 'smooth' }), 50);
+  }
 
   wrap.appendChild(main);
   wrap.appendChild(Footer());

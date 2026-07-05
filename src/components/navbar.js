@@ -58,7 +58,7 @@ export function Navbar(user) {
   } else {
     const linksHtml = `
       <a href="#/cenik" class="hover:text-accent-600">Ceník</a>
-      <a href="#/#faq" class="hover:text-accent-600">FAQ</a>
+      <a href="#/?scrollTo=faq" class="hover:text-accent-600">FAQ</a>
     `;
     links.innerHTML = linksHtml;
     actions.innerHTML = `

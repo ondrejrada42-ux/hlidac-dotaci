@@ -13,7 +13,7 @@ export function Footer() {
           <ul class="space-y-1 text-sm text-primary-300">
             <li><a href="#/cenik" class="hover:text-white">Ceník</a></li>
             <li><a href="#/registrace" class="hover:text-white">Registrace</a></li>
-            <li><a href="#/#faq" class="hover:text-white">Časté dotazy</a></li>
+            <li><a href="#/?scrollTo=faq" class="hover:text-white">Časté dotazy</a></li>
           </ul>
         </div>
         <div>
