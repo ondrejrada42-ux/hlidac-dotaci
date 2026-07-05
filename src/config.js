@@ -1,6 +1,6 @@
 export const SUPABASE_URL = 'https://bvxrkptutjwcjvfccwwl.supabase.co';
 export const SUPABASE_ANON_KEY = 'sb_publishable_AMIDk1ABhxzeG22e2_Fh4g_wc1gTSjq';
-export const STRIPE_PUBLISHABLE_KEY = null;
+export const STRIPE_PUBLISHABLE_KEY = 'pk_test_51TpphiCsp5VZTDhKRFPN0IorxCitj96ze3gexljKM9Y3zJbe3ejmsoFwoPw0XJ8P5zf3n3YIQRpgJYncpxpRghJb00RlaNXQvC';
 
 export const DEMO_MODE = !SUPABASE_URL || !SUPABASE_ANON_KEY;
 
