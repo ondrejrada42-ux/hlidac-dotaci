@@ -1,6 +1,8 @@
 import { createCheckoutSession, handleStripeWebhook } from './stripe.js';
 import { handleOnNewCall } from './notify.js';
 import { runDigestJob } from './digest.js';
+import { scrapeDotaceEU } from './scraper.js';
+import { sendAdminDailyReport } from './adminReport.js';
 
 function withCors(response) {
   const headers = new Headers(response.headers);
@@ -30,6 +32,14 @@ export default {
       if (url.pathname === '/api/on-new-call' && request.method === 'POST') {
         return await handleOnNewCall(request, env, ctx);
       }
+
+      if (url.pathname === '/api/run-daily-job' && request.method === 'POST') {
+        if (request.headers.get('X-Webhook-Secret') !== env.SUPABASE_WEBHOOK_SECRET) {
+          return new Response('Unauthorized', { status: 401 });
+        }
+        const result = await runDailyJob(event, env);
+        return new Response(JSON.stringify(result), { headers: { 'Content-Type': 'application/json' } });
+      }
     } catch (err) {
       return withCors(new Response(JSON.stringify({ error: err.message }), { status: 500 }));
     }
@@ -38,6 +48,13 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(runDigestJob(event, env));
+    ctx.waitUntil(runDailyJob(event, env));
   },
 };
+
+async function runDailyJob(event, env) {
+  const scrapeResult = await scrapeDotaceEU(env);
+  await runDigestJob(event, env);
+  await sendAdminDailyReport(env, scrapeResult);
+  return scrapeResult;
+}

@@ -185,6 +185,27 @@ insert into public.calls (nazev, poskytovatel, obory, kraje, velikosti, min_cast
 on conflict do nothing;
 
 -- ---------------------------------------------------------------------
+-- Automatický import výzev (denní scraper DotaceEU.cz) – podpůrné objekty
+-- ---------------------------------------------------------------------
+
+alter table public.calls add column if not exists zdroj text;
+
+create unique index if not exists calls_url_key on public.calls (url);
+
+create table if not exists public.scraper_log (
+  id uuid primary key default gen_random_uuid(),
+  zdroj text not null,
+  run_at timestamptz not null default now(),
+  parsed_count int not null default 0,
+  added_count int not null default 0,
+  expired_count int not null default 0,
+  error text
+);
+
+grant usage on schema public to service_role;
+grant all on public.scraper_log to service_role;
+
+-- ---------------------------------------------------------------------
 -- Jak vytvořit admin účet:
 -- 1. Zaregistrujte se v běžící aplikaci normálně (libovolný e-mail).
 -- 2. Spusťte v SQL Editoru (nahraďte e-mail):
