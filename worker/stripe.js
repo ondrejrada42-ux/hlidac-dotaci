@@ -4,10 +4,17 @@ function formEncode(obj, prefix = '') {
   const params = [];
   for (const [key, value] of Object.entries(obj)) {
     const fullKey = prefix ? `${prefix}[${key}]` : key;
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
+    if (Array.isArray(value)) {
+      value.forEach((item, i) => {
+        const indexedKey = `${fullKey}[${i}]`;
+        if (item && typeof item === 'object') {
+          params.push(formEncode(item, indexedKey));
+        } else if (item !== undefined && item !== null) {
+          params.push(`${encodeURIComponent(indexedKey)}=${encodeURIComponent(item)}`);
+        }
+      });
+    } else if (value && typeof value === 'object') {
       params.push(formEncode(value, fullKey));
-    } else if (Array.isArray(value)) {
-      value.forEach((v) => params.push(`${encodeURIComponent(fullKey)}[]=${encodeURIComponent(v)}`));
     } else if (value !== undefined && value !== null) {
       params.push(`${encodeURIComponent(fullKey)}=${encodeURIComponent(value)}`);
     }
