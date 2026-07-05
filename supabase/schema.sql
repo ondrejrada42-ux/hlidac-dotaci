@@ -101,11 +101,17 @@ create trigger on_auth_user_created
 -- jako tabulky vytvořené přes Table Editor - bez GRANT nepomůžou ani RLS pravidla)
 -- ---------------------------------------------------------------------
 
-grant usage on schema public to authenticated, anon;
+grant usage on schema public to authenticated, anon, service_role;
 grant select, update on public.profiles to authenticated;
 grant select, insert, update, delete on public.calls to authenticated;
 grant select, insert, update, delete on public.saved_calls to authenticated;
 grant select, insert on public.excluded to authenticated;
+
+-- service_role obchází RLS, ale i tak potřebuje základní GRANT na tabulky
+grant all on public.profiles to service_role;
+grant all on public.calls to service_role;
+grant all on public.saved_calls to service_role;
+grant all on public.excluded to service_role;
 
 -- ---------------------------------------------------------------------
 -- Row Level Security
