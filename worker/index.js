@@ -1,6 +1,7 @@
 import { createCheckoutSession, handleStripeWebhook } from './stripe.js';
 import { handleOnNewCall } from './notify.js';
 import { runDigestJob } from './digest.js';
+import { getActiveUsers } from './supabase.js';
 
 function withCors(response) {
   const headers = new Headers(response.headers);
@@ -29,6 +30,28 @@ export default {
 
       if (url.pathname === '/api/on-new-call' && request.method === 'POST') {
         return await handleOnNewCall(request, env, ctx);
+      }
+
+      if (url.pathname === '/api/debug-users' && request.method === 'GET') {
+        if (request.headers.get('X-Webhook-Secret') !== env.SUPABASE_WEBHOOK_SECRET) {
+          return new Response('Unauthorized', { status: 401 });
+        }
+        const users = await getActiveUsers(env);
+        return new Response(
+          JSON.stringify(
+            users.map((u) => ({
+              email: u.email,
+              role: u.role,
+              plan: u.plan,
+              obor: u.obor,
+              kraj: u.kraj,
+              velikost_firmy: u.velikost_firmy,
+              onboarding_complete: u.onboarding_complete,
+              notification_prefs: u.notification_prefs,
+            }))
+          ),
+          { headers: { 'Content-Type': 'application/json' } }
+        );
       }
     } catch (err) {
       return withCors(new Response(JSON.stringify({ error: err.message }), { status: 500 }));
