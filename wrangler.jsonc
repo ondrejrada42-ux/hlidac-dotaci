@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hlidac-dotaci",
+  "compatibility_date": "2026-07-05",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "worker/index.js",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "vars": {
+    "SITE_URL": "https://hlidac-dotaci.ondrejrada42.workers.dev",
+    "SUPABASE_URL": "https://bvxrkptutjwcjvfccwwl.supabase.co"
+  },
+  "triggers": {
+    "crons": ["0 7 * * *"]
+  }
+}

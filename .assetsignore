@@ -3,3 +3,6 @@
 .wrangler
 supabase
 .gitignore
+worker
+wrangler.jsonc
+package.json

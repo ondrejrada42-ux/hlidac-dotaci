@@ -64,8 +64,22 @@ export function PricingPage({ user } = {}) {
       }
 
       if (STRIPE_PUBLISHABLE_KEY) {
-        // Zde by proběhlo přesměrování na Stripe Checkout (stripe.redirectToCheckout / Checkout Session z backendu).
-        toast('Přesměrování na Stripe Checkout…', 'info');
+        btn.disabled = true;
+        btn.textContent = 'Přesměrovávám…';
+        try {
+          const res = await fetch('/api/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id, userEmail: user.email, plan: planId }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.url) throw new Error(data.error || 'Platbu se nepodařilo zahájit.');
+          window.location.href = data.url;
+        } catch (err) {
+          toast(err.message, 'error');
+          btn.disabled = false;
+          btn.textContent = 'Předplatit';
+        }
         return;
       }
 
