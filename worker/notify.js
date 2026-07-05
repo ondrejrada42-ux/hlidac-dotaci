@@ -16,11 +16,6 @@ export async function handleOnNewCall(request, env, ctx) {
 
   const users = await getActiveUsers(env);
   const instantUsers = users.filter((u) => u.notification_prefs?.frequency === 'okamzite');
-  const scored = instantUsers.map((user) => ({
-    email: user.email,
-    score: computeScore(user, call),
-    providerEnabled: isProviderEnabled(user, call),
-  }));
 
   const dashboardUrl = `${new URL(request.url).origin}/#/dashboard`;
 
@@ -38,16 +33,12 @@ export async function handleOnNewCall(request, env, ctx) {
         matches: [{ call, score }],
         dashboardUrl,
       }),
-    }).catch((err) => ({ emailError: err.message }))
+    }).catch(() => null)
   );
 
-  const sendResults = await Promise.all(sends);
+  ctx.waitUntil(Promise.all(sends));
 
-  return new Response(
-    JSON.stringify({
-      notified: toNotify.length,
-      debug: { totalUsers: users.length, instantUsers: instantUsers.length, scored, sendResults },
-    }),
-    { headers: { 'Content-Type': 'application/json' } }
-  );
+  return new Response(JSON.stringify({ notified: toNotify.length }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
