@@ -1,6 +1,6 @@
 import { getActiveUsers } from './supabase.js';
 import { computeScore, isProviderEnabled } from './matching.js';
-import { sendEmail, digestEmailHtml } from './resend.js';
+import { sendEmailsSequentially, digestEmailHtml } from './resend.js';
 
 export async function handleOnNewCall(request, env, ctx) {
   const secretHeader = request.headers.get('X-Webhook-Secret');
@@ -23,20 +23,18 @@ export async function handleOnNewCall(request, env, ctx) {
     .map((user) => ({ user, score: computeScore(user, call) }))
     .filter(({ user, score }) => score >= 30 && isProviderEnabled(user, call));
 
-  const sends = toNotify.map(({ user, score }) =>
-    sendEmail(env, {
-      to: user.email,
-      subject: `Nová výzva pro vás: ${call.nazev}`,
-      html: digestEmailHtml({
-        heading: 'Nová dotační výzva odpovídá vašemu profilu',
-        intro: `Právě jsme přidali výzvu, která se ${score} % shoduje s vaším profilem.`,
-        matches: [{ call, score }],
-        dashboardUrl,
-      }),
-    }).catch(() => null)
-  );
+  const jobs = toNotify.map(({ user, score }) => ({
+    to: user.email,
+    subject: `Nová výzva pro vás: ${call.nazev}`,
+    html: digestEmailHtml({
+      heading: 'Nová dotační výzva odpovídá vašemu profilu',
+      intro: `Právě jsme přidali výzvu, která se ${score} % shoduje s vaším profilem.`,
+      matches: [{ call, score }],
+      dashboardUrl,
+    }),
+  }));
 
-  ctx.waitUntil(Promise.all(sends));
+  ctx.waitUntil(sendEmailsSequentially(env, jobs));
 
   return new Response(JSON.stringify({ notified: toNotify.length }), {
     headers: { 'Content-Type': 'application/json' },

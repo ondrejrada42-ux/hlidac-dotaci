@@ -1,6 +1,6 @@
 import { getActiveUsers, getActiveCalls } from './supabase.js';
 import { matchedCallsForUser } from './matching.js';
-import { sendEmail, digestEmailHtml } from './resend.js';
+import { sendEmailsSequentially, digestEmailHtml } from './resend.js';
 
 const PLAN_LIMITS = { FREE: 3, PRO: Infinity, FIRMA: Infinity };
 
@@ -22,19 +22,17 @@ export async function runDigestJob(event, env) {
     const matches = matchedCallsForUser(user, calls).slice(0, PLAN_LIMITS[user.plan] ?? 3);
     if (matches.length === 0) continue;
 
-    jobs.push(
-      sendEmail(env, {
-        to: user.email,
-        subject: isWeekly ? 'Váš týdenní souhrn dotačních výzev' : 'Váš denní souhrn dotačních výzev',
-        html: digestEmailHtml({
-          heading: isWeekly ? 'Týdenní souhrn relevantních výzev' : 'Denní souhrn relevantních výzev',
-          intro: `Našli jsme ${matches.length} výzev odpovídajících vašemu profilu.`,
-          matches,
-          dashboardUrl,
-        }),
-      }).catch(() => null)
-    );
+    jobs.push({
+      to: user.email,
+      subject: isWeekly ? 'Váš týdenní souhrn dotačních výzev' : 'Váš denní souhrn dotačních výzev',
+      html: digestEmailHtml({
+        heading: isWeekly ? 'Týdenní souhrn relevantních výzev' : 'Denní souhrn relevantních výzev',
+        intro: `Našli jsme ${matches.length} výzev odpovídajících vašemu profilu.`,
+        matches,
+        dashboardUrl,
+      }),
+    });
   }
 
-  await Promise.all(jobs);
+  await sendEmailsSequentially(env, jobs);
 }

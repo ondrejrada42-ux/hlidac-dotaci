@@ -1,4 +1,8 @@
-export async function sendEmail(env, { to, subject, html }) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function sendEmail(env, { to, subject, html }, attempt = 1) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -12,10 +16,28 @@ export async function sendEmail(env, { to, subject, html }) {
       html,
     }),
   });
+
+  if (res.status === 429 && attempt <= 3) {
+    await sleep(attempt * 600);
+    return sendEmail(env, { to, subject, html }, attempt + 1);
+  }
+
   if (!res.ok) {
     throw new Error(`Resend selhal: ${res.status} ${await res.text()}`);
   }
   return res.json();
+}
+
+// Resend má limit požadavků za sekundu - e-maily z fronty posílá postupně místo najednou.
+export async function sendEmailsSequentially(env, jobs) {
+  const results = [];
+  for (const job of jobs) {
+    results.push(
+      await sendEmail(env, job).catch((err) => ({ error: err.message }))
+    );
+    await sleep(550);
+  }
+  return results;
 }
 
 export function callRow({ call, score }) {
