@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hlídač dotací – automatický monitoring dotačních výzev</title>
+<meta name="description" content="Hlídač dotací automaticky sleduje dotační výzvy a granty pro české firmy a živnostníky a posílá jen ty relevantní." />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: {
+            50: '#eef2f8', 100: '#d7e1ee', 200: '#aec3dd', 300: '#84a4cb',
+            400: '#4a6b9c', 500: '#1e3a5f', 600: '#152c4a', 700: '#102038',
+            800: '#0b1728', 900: '#060e18',
+          },
+          accent: {
+            50: '#eafbf1', 100: '#c9f3d9', 200: '#8fe2b2', 300: '#57cf8d',
+            400: '#2fbb70', 500: '#1f9d5a', 600: '#188049', 700: '#146339',
+          },
+        },
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html { font-family: 'Inter', system-ui, sans-serif; scroll-behavior: smooth; }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: #aec3dd; border-radius: 4px; }
+  .fade-in { animation: fadeIn .25s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body class="bg-gray-50 text-primary-900">
+<div id="app"></div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
