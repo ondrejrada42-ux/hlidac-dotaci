@@ -13,7 +13,7 @@
     "run_worker_first": ["/api/*"]
   },
   "vars": {
-    "SITE_URL": "https://hlidac-dotaci.ondrejrada42.workers.dev",
+    "SITE_URL": "https://dotace.apexradasystems.com",
     "SUPABASE_URL": "https://bvxrkptutjwcjvfccwwl.supabase.co",
     "STRIPE_PRICE_PRO": "price_1TppmiCsp5VZTDhKLAiE5nLF",
     "STRIPE_PRICE_FIRMA": "price_1TppnwCsp5VZTDhKxWKGas5J"
