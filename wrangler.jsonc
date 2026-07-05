@@ -16,7 +16,8 @@
     "SITE_URL": "https://dotace.apexradasystems.com",
     "SUPABASE_URL": "https://bvxrkptutjwcjvfccwwl.supabase.co",
     "STRIPE_PRICE_PRO": "price_1TppmiCsp5VZTDhKLAiE5nLF",
-    "STRIPE_PRICE_FIRMA": "price_1TppnwCsp5VZTDhKxWKGas5J"
+    "STRIPE_PRICE_FIRMA": "price_1TppnwCsp5VZTDhKxWKGas5J",
+    "RESEND_FROM_ADDRESS": "Hlídač dotací <dotace@apexradasystems.com>"
   },
   "triggers": {
     "crons": ["0 7 * * *"]
