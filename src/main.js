@@ -12,6 +12,8 @@ import { AdminPage } from './pages/admin.js';
 import { TermsPage, PrivacyPage } from './pages/legal.js';
 import { ForgotPasswordPage } from './pages/forgotPassword.js';
 import { ResetPasswordPage } from './pages/resetPassword.js';
+import { DEMO_MODE } from './config.js';
+import { getSupabase } from './supabaseClient.js';
 
 route('/', LandingPage);
 route('/prihlaseni', LoginPage);
@@ -29,4 +31,15 @@ route('/nastaveni', SettingsPage, { auth: true, onboarded: true });
 route('/admin', AdminPage, { auth: true, admin: true });
 
 const root = document.getElementById('app');
-startRouter(root);
+const render = startRouter(root);
+
+if (!DEMO_MODE) {
+  getSupabase().then((supabase) => {
+    supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        window.location.hash = '/nove-heslo';
+        render();
+      }
+    });
+  });
+}
