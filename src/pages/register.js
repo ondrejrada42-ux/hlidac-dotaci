@@ -25,7 +25,7 @@ export function RegisterPage({ user } = {}) {
         </div>
         <label class="flex items-start gap-2 text-xs text-primary-500">
           <input required type="checkbox" class="mt-0.5" />
-          Souhlasím se zpracováním osobních údajů a obchodními podmínkami.
+          Souhlasím se <a href="#/zasady-zpracovani-udaju" class="text-accent-600 font-semibold" target="_blank">zpracováním osobních údajů</a> a <a href="#/obchodni-podminky" class="text-accent-600 font-semibold" target="_blank">obchodními podmínkami</a>.
         </label>
         <button type="submit" class="w-full bg-primary-600 text-white font-semibold rounded-lg py-2.5 hover:bg-primary-700">Pokračovat na nastavení profilu</button>
         <p class="text-xs text-primary-400 text-center">Už máte účet? <a href="#/prihlaseni" class="text-accent-600 font-semibold">Přihlaste se</a></p>

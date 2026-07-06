@@ -9,11 +9,14 @@ import { SavedPage } from './pages/saved.js';
 import { SettingsPage } from './pages/settings.js';
 import { PricingPage } from './pages/pricing.js';
 import { AdminPage } from './pages/admin.js';
+import { TermsPage, PrivacyPage } from './pages/legal.js';
 
 route('/', LandingPage);
 route('/prihlaseni', LoginPage);
 route('/registrace', RegisterPage);
 route('/cenik', PricingPage);
+route('/obchodni-podminky', TermsPage);
+route('/zasady-zpracovani-udaju', PrivacyPage);
 route('/onboarding', OnboardingPage, { auth: true });
 route('/dashboard', DashboardPage, { auth: true, onboarded: true });
 route('/vyzva/:id', CallDetailPage, { auth: true, onboarded: true });

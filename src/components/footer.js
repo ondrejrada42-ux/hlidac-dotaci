@@ -19,8 +19,8 @@ export function Footer() {
         <div>
           <h4 class="font-semibold text-white mb-2">Informace</h4>
           <ul class="space-y-1 text-sm text-primary-300">
-            <li>Zásady zpracování osobních údajů</li>
-            <li>Obchodní podmínky</li>
+            <li><a href="#/zasady-zpracovani-udaju" class="hover:text-white">Zásady zpracování osobních údajů</a></li>
+            <li><a href="#/obchodni-podminky" class="hover:text-white">Obchodní podmínky</a></li>
             <li>ondrejrada42@gmail.com</li>
           </ul>
         </div>
