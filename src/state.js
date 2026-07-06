@@ -76,6 +76,29 @@ export async function register(email, password) {
   return { ok: true, user };
 }
 
+export async function requestPasswordReset(email) {
+  if (DEMO_MODE) {
+    if (!db.getUserByEmail(email)) {
+      return { ok: false, error: 'Uživatel s tímto e-mailem neexistuje.' };
+    }
+    return { ok: true };
+  }
+  const supabase = await getSupabase();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/#/nove-heslo`,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+export async function updatePassword(newPassword) {
+  if (DEMO_MODE) return { ok: true };
+  const supabase = await getSupabase();
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
 export async function logout() {
   if (DEMO_MODE) {
     db.clearLocalSession();

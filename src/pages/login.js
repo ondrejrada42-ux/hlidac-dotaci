@@ -25,6 +25,7 @@ export function LoginPage({ user } = {}) {
           <input required type="password" name="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-400" placeholder="••••••••" />
         </div>
         <button type="submit" class="w-full bg-primary-600 text-white font-semibold rounded-lg py-2.5 hover:bg-primary-700">Přihlásit se</button>
+        <p class="text-xs text-center"><a href="#/zapomenute-heslo" class="text-primary-500 hover:text-accent-600">Zapomenuté heslo?</a></p>
         <p class="text-xs text-primary-400 text-center">Nemáte účet? <a href="#/registrace" class="text-accent-600 font-semibold">Zaregistrujte se</a></p>
         ${
           DEMO_MODE

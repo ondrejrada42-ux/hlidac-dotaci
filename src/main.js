@@ -10,10 +10,14 @@ import { SettingsPage } from './pages/settings.js';
 import { PricingPage } from './pages/pricing.js';
 import { AdminPage } from './pages/admin.js';
 import { TermsPage, PrivacyPage } from './pages/legal.js';
+import { ForgotPasswordPage } from './pages/forgotPassword.js';
+import { ResetPasswordPage } from './pages/resetPassword.js';
 
 route('/', LandingPage);
 route('/prihlaseni', LoginPage);
 route('/registrace', RegisterPage);
+route('/zapomenute-heslo', ForgotPasswordPage);
+route('/nove-heslo', ResetPasswordPage);
 route('/cenik', PricingPage);
 route('/obchodni-podminky', TermsPage);
 route('/zasady-zpracovani-udaju', PrivacyPage);
