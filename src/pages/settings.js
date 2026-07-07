@@ -49,6 +49,20 @@ export async function SettingsPage({ user }) {
         </p>
         <div id="profiles-list" class="space-y-3"></div>
       </div>
+
+      ${
+        isFirma
+          ? `<div class="mt-10 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h2 class="font-semibold text-primary-800 mb-1">API přístup</h2>
+              <p class="text-xs text-primary-400 mb-4">Použijte tento klíč pro programový přístup k vašim relevantním výzvám: <code class="bg-gray-100 px-1 rounded">GET https://dotace.apexradasystems.com/api/v1/calls</code> s hlavičkou <code class="bg-gray-100 px-1 rounded">Authorization: Bearer &lt;klíč&gt;</code>.</p>
+              <div class="flex items-center gap-2">
+                <input id="api-key-field" readonly class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono bg-gray-50" value="${user.api_key ?? 'Zatím nevygenerováno'}" />
+                <button id="btn-copy-key" class="text-sm font-semibold text-primary-600 border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50">Kopírovat</button>
+                <button id="btn-regenerate-key" class="text-sm font-semibold text-primary-600 border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50">${user.api_key ? 'Vygenerovat nový' : 'Vygenerovat klíč'}</button>
+              </div>
+             </div>`
+          : ''
+      }
     </main>
   `);
 
@@ -248,6 +262,23 @@ export async function SettingsPage({ user }) {
 
   renderFreq();
   await renderProfiles();
+  main.querySelector('#btn-copy-key')?.addEventListener('click', () => {
+    const field = main.querySelector('#api-key-field');
+    if (!user.api_key) return;
+    navigator.clipboard.writeText(field.value);
+    toast('API klíč zkopírován do schránky.', 'info');
+  });
+
+  main.querySelector('#btn-regenerate-key')?.addEventListener('click', async () => {
+    if (user.api_key && !confirm('Starý klíč přestane fungovat. Opravdu vygenerovat nový?')) return;
+    const bytes = crypto.getRandomValues(new Uint8Array(24));
+    const newKey = 'hd_' + Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    await db.updateUser(user.id, { api_key: newKey });
+    main.querySelector('#api-key-field').value = newKey;
+    main.querySelector('#btn-regenerate-key').textContent = 'Vygenerovat nový';
+    toast('Nový API klíč byl vygenerován.');
+  });
+
   wrap.appendChild(main);
   wrap.appendChild(Footer());
   return wrap;

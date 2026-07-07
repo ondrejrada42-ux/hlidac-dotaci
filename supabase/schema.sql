@@ -20,6 +20,7 @@ create table if not exists public.profiles (
     "frequency": "tydenni",
     "poskytovatele": {"EU": true, "MPO": true, "MMR": true, "Kraj": true, "SFŽP": true, "MZe": true, "MPSV": true, "ČMZRB": true}
   }'::jsonb,
+  api_key text unique,
   created_at timestamptz not null default now()
 );
 
@@ -198,6 +199,12 @@ begin
     alter table public.profiles drop column obor;
   end if;
 end $$;
+
+-- ---------------------------------------------------------------------
+-- API přístup (plán FIRMA)
+-- ---------------------------------------------------------------------
+
+alter table public.profiles add column if not exists api_key text unique;
 
 -- ---------------------------------------------------------------------
 -- Více firemních profilů (plán FIRMA)

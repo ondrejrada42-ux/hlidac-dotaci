@@ -3,12 +3,13 @@ import { handleOnNewCall } from './notify.js';
 import { runDigestJob } from './digest.js';
 import { scrapeDotaceEU } from './scraper.js';
 import { sendAdminDailyReport } from './adminReport.js';
+import { handleApiCalls } from './apiAccess.js';
 
 function withCors(response) {
   const headers = new Headers(response.headers);
   headers.set('Access-Control-Allow-Origin', '*');
-  headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  headers.set('Access-Control-Allow-Headers', 'Content-Type, X-Webhook-Secret');
+  headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Webhook-Secret');
   return new Response(response.body, { status: response.status, headers });
 }
 
@@ -31,6 +32,10 @@ export default {
 
       if (url.pathname === '/api/on-new-call' && request.method === 'POST') {
         return await handleOnNewCall(request, env, ctx);
+      }
+
+      if (url.pathname === '/api/v1/calls' && request.method === 'GET') {
+        return withCors(await handleApiCalls(request, env));
       }
 
       if (url.pathname === '/api/run-daily-job' && request.method === 'POST') {
