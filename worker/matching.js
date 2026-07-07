@@ -16,9 +16,15 @@ export function isProviderEnabled(user, call) {
   return !!prefs[call.poskytovatel];
 }
 
-export function matchedCallsForUser(user, calls, { minScore = 30 } = {}) {
+// Pro FIRMA plán se skóre počítá jako nejlepší shoda napříč primárním profilem a všemi firemními profily.
+export function bestScore(user, call, extraProfiles = []) {
+  const scores = [computeScore(user, call), ...extraProfiles.map((p) => computeScore(p, call))];
+  return Math.max(...scores);
+}
+
+export function matchedCallsForUser(user, calls, extraProfiles = [], { minScore = 30 } = {}) {
   return calls
-    .map((call) => ({ call, score: computeScore(user, call) }))
+    .map((call) => ({ call, score: bestScore(user, call, extraProfiles) }))
     .filter((m) => m.score >= minScore && isProviderEnabled(user, m.call))
     .sort((a, b) => b.score - a.score);
 }

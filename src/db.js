@@ -27,9 +27,11 @@ function initLocal() {
       calls: structuredClone(SEED_CALLS),
       saved_calls: [],
       excluded: [],
+      company_profiles: [],
     };
     saveRaw(dbState);
   }
+  if (!dbState.company_profiles) dbState.company_profiles = [];
   return dbState;
 }
 
@@ -272,6 +274,62 @@ export const db = {
         { user_id: userId, call_id: call.id, poskytovatel: call.poskytovatel, obory: call.obory },
         { onConflict: 'user_id,call_id', ignoreDuplicates: true }
       );
+    if (error) throw error;
+  },
+
+  // ---- Firemní profily (plán FIRMA) -------------------------------------------
+
+  async getCompanyProfiles(userId) {
+    if (DEMO_MODE) return local.company_profiles.filter((p) => p.user_id === userId);
+    const supabase = await sb();
+    const { data, error } = await supabase
+      .from('company_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at');
+    if (error) throw error;
+    return data;
+  },
+
+  async createCompanyProfile(userId, profile) {
+    if (DEMO_MODE) {
+      const entry = { id: uid('cp'), user_id: userId, created_at: new Date().toISOString(), ...profile };
+      local.company_profiles.push(entry);
+      persistLocal();
+      return entry;
+    }
+    const supabase = await sb();
+    const { data, error } = await supabase
+      .from('company_profiles')
+      .insert({ user_id: userId, ...profile })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async updateCompanyProfile(id, patch) {
+    if (DEMO_MODE) {
+      const entry = local.company_profiles.find((p) => p.id === id);
+      if (!entry) return null;
+      Object.assign(entry, patch);
+      persistLocal();
+      return entry;
+    }
+    const supabase = await sb();
+    const { data, error } = await supabase.from('company_profiles').update(patch).eq('id', id).select().maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteCompanyProfile(id) {
+    if (DEMO_MODE) {
+      local.company_profiles = local.company_profiles.filter((p) => p.id !== id);
+      persistLocal();
+      return;
+    }
+    const supabase = await sb();
+    const { error } = await supabase.from('company_profiles').delete().eq('id', id);
     if (error) throw error;
   },
 

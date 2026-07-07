@@ -1,5 +1,5 @@
-import { getActiveUsers } from './supabase.js';
-import { computeScore, isProviderEnabled } from './matching.js';
+import { getActiveUsers, getCompanyProfilesByUser } from './supabase.js';
+import { bestScore, isProviderEnabled } from './matching.js';
 import { sendEmailsSequentially, digestEmailHtml } from './resend.js';
 
 export async function handleOnNewCall(request, env, ctx) {
@@ -19,9 +19,14 @@ export async function handleOnNewCall(request, env, ctx) {
 
   const dashboardUrl = `${new URL(request.url).origin}/#/dashboard`;
 
-  const toNotify = instantUsers
-    .map((user) => ({ user, score: computeScore(user, call) }))
-    .filter(({ user, score }) => score >= 30 && isProviderEnabled(user, call));
+  const toNotify = [];
+  for (const user of instantUsers) {
+    const extraProfiles = user.plan === 'FIRMA' ? await getCompanyProfilesByUser(env, user.id) : [];
+    const score = bestScore(user, call, extraProfiles);
+    if (score >= 30 && isProviderEnabled(user, call)) {
+      toNotify.push({ user, score });
+    }
+  }
 
   const jobs = toNotify.map(({ user, score }) => ({
     to: user.email,

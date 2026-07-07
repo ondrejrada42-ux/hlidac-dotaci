@@ -18,3 +18,7 @@ export async function getActiveUsers(env) {
 export async function getActiveCalls(env) {
   return supabaseGet(env, 'calls', 'stav=eq.aktivni&select=*');
 }
+
+export async function getCompanyProfilesByUser(env, userId) {
+  return supabaseGet(env, 'company_profiles', `user_id=eq.${userId}&select=*`);
+}

@@ -1,4 +1,4 @@
-import { getActiveUsers, getActiveCalls } from './supabase.js';
+import { getActiveUsers, getActiveCalls, getCompanyProfilesByUser } from './supabase.js';
 import { matchedCallsForUser } from './matching.js';
 import { sendEmailsSequentially, digestEmailHtml } from './resend.js';
 
@@ -19,7 +19,8 @@ export async function runDigestJob(event, env) {
     const isWeekly = frequency === 'tydenni' && isMonday;
     if (!isDaily && !isWeekly) continue;
 
-    const matches = matchedCallsForUser(user, calls).slice(0, PLAN_LIMITS[user.plan] ?? 3);
+    const extraProfiles = user.plan === 'FIRMA' ? await getCompanyProfilesByUser(env, user.id) : [];
+    const matches = matchedCallsForUser(user, calls, extraProfiles).slice(0, PLAN_LIMITS[user.plan] ?? 3);
     if (matches.length === 0) continue;
 
     jobs.push({

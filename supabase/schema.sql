@@ -200,6 +200,29 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------------
+-- Více firemních profilů (plán FIRMA)
+-- ---------------------------------------------------------------------
+
+create table if not exists public.company_profiles (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  nazev text not null,
+  obory text[] not null default '{}',
+  kraj text not null,
+  velikost_firmy text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.company_profiles enable row level security;
+
+grant select, insert, update, delete on public.company_profiles to authenticated;
+grant all on public.company_profiles to service_role;
+
+drop policy if exists "company_profiles_owner" on public.company_profiles;
+create policy "company_profiles_owner" on public.company_profiles
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- ---------------------------------------------------------------------
 -- Automatický import výzev (denní scraper DotaceEU.cz) – podpůrné objekty
 -- ---------------------------------------------------------------------
 
